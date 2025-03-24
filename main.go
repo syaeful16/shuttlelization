@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/syaeful16/shuttlelization/database"
+	"github.com/syaeful16/shuttlelization/routes"
 )
 
 func main() {
@@ -14,9 +15,8 @@ func main() {
 	// FIber app
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	// Route
+	routes.RouteInit(app)
 
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":8000"))
 }
