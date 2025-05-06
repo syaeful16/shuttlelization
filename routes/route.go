@@ -14,4 +14,6 @@ func RouteInit(r *fiber.App) {
 	r.Get("/user", middlewares.AuthMiddleware(), controllers.CurrentUser)
 	r.Get("/refresh-token", controllers.RefreshToken)
 	r.Delete("/logout", controllers.Logout)
+
+	r.Get("/test", controllers.TestResponse)
 }

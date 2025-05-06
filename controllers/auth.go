@@ -184,3 +184,7 @@ func RefreshToken(c *fiber.Ctx) error {
 
 	return helpers.Response(c, "success", fiber.StatusOK, "Token refreshed", resAccessToken, nil)
 }
+
+func TestResponse(c *fiber.Ctx) error {
+	return helpers.Response(c, "success", fiber.StatusOK, "Test response", nil, nil)
+}
