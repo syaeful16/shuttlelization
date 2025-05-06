@@ -95,7 +95,7 @@ func Login(c *fiber.Ctx) error {
 
 	// * 6️⃣ - Generate refresh & access token
 	// generate refresh token
-	expRefreshToken := time.Now().Add(5 * time.Minute) // ! Set expired time 5 menit
+	expRefreshToken := time.Now().Add(120 * time.Minute) // ! Set expired time 120 menit
 	refreshToken, err := utils.GenerateToken(c, customer.ID, expRefreshToken, utils.RT_SECRET_KEY)
 	if err != nil {
 		return helpers.Response(c, "error", fiber.StatusInternalServerError, "Failed to generate refresh token", nil, nil)
@@ -116,10 +116,11 @@ func Login(c *fiber.Ctx) error {
 		Expires:  expRefreshToken,
 		Path:     "/",
 		HTTPOnly: true,
+		Secure:   false,
 	})
 
 	// * Generate access token
-	expAccessToken := time.Now().Add(1 * time.Minute) // ! Set expired time 1 menit
+	expAccessToken := time.Now().Add(15 * time.Minute) // ! Set expired time 15 menit
 	accessToken, err := utils.GenerateToken(c, customer.ID, expAccessToken, utils.AT_SECRET_KEY)
 	if err != nil {
 		return helpers.Response(c, "error", fiber.StatusInternalServerError, "Failed to generate access token", nil, nil)
