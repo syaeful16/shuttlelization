@@ -150,8 +150,17 @@ func Logout(c *fiber.Ctx) error {
 	if err := database.DB.Where("user_id = ? AND token = ?", claims.UserID, refreshToken).Delete(&models.RefreshToken{}).Error; err != nil {
 		return helpers.Response(c, "error", fiber.StatusInternalServerError, "Failed to delete refresh token", nil, nil)
 	}
-	// hapus cookie refresh token
-	c.ClearCookie("refresh_token")
+
+	// kadaluarsakan cookie refresh_token
+	c.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		MaxAge:   -1,
+		HTTPOnly: true,
+		Secure:   false,
+		SameSite: "Lax",
+	})
 
 	return helpers.Response(c, "success", fiber.StatusOK, "Logout success", nil, nil)
 }
@@ -172,7 +181,7 @@ func RefreshToken(c *fiber.Ctx) error {
 	}
 
 	// buat access token baru
-	expAccessToken := time.Now().Add(1 * time.Minute) // ! Set expired time 1 menit
+	expAccessToken := time.Now().Add(15 * time.Minute) // ! Set expired time 1 menit
 	accessToken, err := utils.GenerateToken(c, claims.UserID, expAccessToken, utils.AT_SECRET_KEY)
 	if err != nil {
 		return helpers.Response(c, "error", fiber.StatusInternalServerError, "Failed to generate access token", nil, nil)
