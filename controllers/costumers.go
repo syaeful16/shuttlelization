@@ -19,16 +19,16 @@ func CurrentUser(c *fiber.Ctx) error {
 
 	var customer models.CustomerLogin
 
+	// cek apakah user ada di database
+	if err := database.DB.Where("id = ?", user_id).First(&customer).Error; err != nil {
+		return helpers.Response(c, "error", fiber.StatusNotFound, "User not found", nil, nil)
+	}
+
 	var customerResponse = map[string]interface{}{
 		"username":     customer.Username,
 		"email":        customer.Email,
 		"fullname":     customer.Fullname,
 		"phone_number": customer.PhoneNumber,
-	}
-
-	// cek apakah user ada di database
-	if err := database.DB.Where("id = ?", user_id).First(&customer).Error; err != nil {
-		return helpers.Response(c, "error", fiber.StatusNotFound, "User not found", nil, nil)
 	}
 
 	return helpers.Response(c, "success", fiber.StatusOK, "User data", customerResponse, nil)
