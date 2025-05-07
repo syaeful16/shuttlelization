@@ -13,13 +13,7 @@ func AuthMiddleware() fiber.Handler {
 		// Ambil token dari header Authorization
 		accessToken := strings.TrimPrefix(c.Get("Authorization"), "Bearer ")
 		if accessToken == "" {
-			return helpers.Response(c, "error", fiber.StatusUnauthorized, "Access token is required", nil, nil)
-		}
-
-		// ? cek apakah refersh token ada di cookie
-		refreshToken := c.Cookies("refresh_token")
-		if refreshToken == "" {
-			return helpers.Response(c, "error", fiber.StatusUnauthorized, "Refresh token is required", nil, nil)
+			return helpers.Response(c, "error", fiber.StatusUnauthorized, "Token is required", nil, nil)
 		}
 
 		// ? verifikasi token apakah masih valid

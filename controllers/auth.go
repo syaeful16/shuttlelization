@@ -78,8 +78,13 @@ func Login(c *fiber.Ctx) error {
 
 	// Parsing & validasi input
 	var input loginInput
-	if err := c.BodyParser(&input); err != nil || helpers.Validate(input) != nil {
-		return helpers.Response(c, "error", fiber.StatusBadRequest, "Invalid input", nil, nil)
+	if err := c.BodyParser(&input); err != nil {
+		return helpers.Response(c, "error", fiber.StatusBadRequest, "Invalid input format", nil, nil)
+	}
+
+	// Validasi input
+	if err := helpers.Validate(input); err != nil {
+		return helpers.Response(c, "error", fiber.StatusBadRequest, "Validation error", nil, err)
 	}
 
 	// * 4️⃣ - Cek apakah user ada di database
@@ -92,32 +97,6 @@ func Login(c *fiber.Ctx) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(customer.Password), []byte(input.Password)); err != nil {
 		return helpers.Response(c, "error", fiber.StatusUnauthorized, "Invalid password", nil, nil)
 	}
-
-	// * 6️⃣ - Generate refresh & access token
-	// generate refresh token
-	expRefreshToken := time.Now().Add(120 * time.Minute) // ! Set expired time 120 menit
-	refreshToken, err := utils.GenerateToken(c, customer.ID, expRefreshToken, utils.RT_SECRET_KEY)
-	if err != nil {
-		return helpers.Response(c, "error", fiber.StatusInternalServerError, "Failed to generate refresh token", nil, nil)
-	}
-
-	// ? Cek apakah refresh token sudah ada di database
-	// Simpan refresh token di database
-	refreshTokenModel := models.RefreshToken{
-		UserID: customer.ID,
-		Token:  refreshToken,
-	}
-	database.DB.Where("user_id = ?", customer.ID).Assign(refreshTokenModel).FirstOrCreate(&refreshTokenModel)
-
-	// * Simpan refresh token ke cookie
-	c.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		Expires:  expRefreshToken,
-		Path:     "/",
-		HTTPOnly: true,
-		Secure:   false,
-	})
 
 	// * Generate access token
 	expAccessToken := time.Now().Add(15 * time.Minute) // ! Set expired time 15 menit
